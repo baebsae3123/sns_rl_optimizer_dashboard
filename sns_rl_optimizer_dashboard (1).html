@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNS RL Optimizer - AI SNS 최적화 플랫폼</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Financial & Analytics Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Pretendard / Inter -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#00C73C',
+                            dark: '#00A632',
+                            light: '#E6F9EC',
+                        },
+                        dark: '#111111',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard Variable', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Pretendard Variable', sans-serif; background-color: #FAFAFA; color: #111111; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+        /* Custom scrollbar for clean Imweb look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00C73C; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col selection:bg-brand selection:text-white">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-nav border-b border-gray-100 transition-all duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <a href="#" class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
+                        <span class="text-brand">S</span>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-dark">SNS RL Optimizer</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-600">
+                    <a href="#templates" class="hover:text-brand transition-colors">템플릿 선택</a>
+                    <a href="#analytics" class="hover:text-brand transition-colors">태그 & 분석 차트</a>
+                    <a href="#simulator" class="hover:text-brand transition-colors">AI 업로드 예측</a>
+                    <a href="#pricing" class="hover:text-brand transition-colors">요금제</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal('loginModal')" class="hidden sm:inline-flex items-center px-4 py-2.5 text-sm font-medium text-dark hover:text-brand transition-colors">
+                    로그인
+                </button>
+                <button onclick="openModal('startModal')" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-dark hover:bg-brand rounded-xl shadow-sm transition-all duration-200">
+                    무료로 시작하기
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-16 pb-20 overflow-hidden bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-light text-brand text-xs font-semibold mb-6">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>대한민국 1위 AI SNS 마케팅 & 템플릿 자동화 솔루션</span>
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-black text-dark tracking-tight max-w-4xl mx-auto leading-[1.15]">
+                브랜드를 쉽고 아름답게,<br class="hidden sm:inline">
+                <span class="text-brand">AI SNS 최적화</span>로 시작해보세요
+            </h1>
+            <p class="mt-6 text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto font-normal leading-relaxed">
+                쇼핑몰부터 고양이 전문 브랜드, 비즈니스 홍보까지. Imweb 스타일의 감각적인 템플릿과 실시간 강화학습(RL) 기반 피드 분석으로 채널 성장을 극대화하세요.
+            </p>
+
+            <!-- Category Tabs -->
+            <div class="mt-10 flex flex-wrap justify-center gap-2 sm:gap-3" id="categoryTabs">
+                <button onclick="filterCategory('all', this)" class="category-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-dark text-white shadow-sm transition-all">전체보기</button>
+                <button onclick="filterCategory('shopping', this)" class="category-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">쇼핑몰</button>
+                <button onclick="filterCategory('pet', this)" class="category-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">고양이/반려동물</button>
+                <button onclick="filterCategory('business', this)" class="category-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">비즈니스 홍보</button>
+                <button onclick="filterCategory('blog', this)" class="category-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">블로그·미디어</button>
+            </div>
+
+            <!-- Dedicated Search Tool -->
+            <div class="mt-8 max-w-2xl mx-auto">
+                <div class="relative flex items-center shadow-lg rounded-2xl bg-white border border-gray-200 p-2 focus-within:border-brand transition-all">
+                    <div class="pl-4 text-gray-400">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="templateSearchInput" oninput="handleSearch(this.value)" placeholder="원하시는 키워드나 태그를 입력하세요 (예: 고양이, 쇼핑몰, 감성)" class="w-full px-4 py-3 bg-transparent text-dark placeholder-gray-400 focus:outline-none text-sm sm:text-base">
+                    <button onclick="handleSearch(document.getElementById('templateSearchInput').value)" class="bg-brand hover:bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center space-x-1.5">
+                        <span>검색</span>
+                    </button>
+                </div>
+                <!-- Quick Tags -->
+                <div class="mt-3 flex items-center justify-center space-x-2 text-xs text-gray-500 overflow-x-auto pb-2">
+                    <span class="font-semibold text-gray-700">인기태그:</span>
+                    <button onclick="setSearchQuery('고양이')" class="px-2.5 py-1 bg-gray-100 hover:bg-brand-light hover:text-brand rounded-md transition-colors">#고양이</button>
+                    <button onclick="setSearchQuery('쇼핑몰')" class="px-2.5 py-1 bg-gray-100 hover:bg-brand-light hover:text-brand rounded-md transition-colors">#쇼핑몰</button>
+                    <button onclick="setSearchQuery('감성카페')" class="px-2.5 py-1 bg-gray-100 hover:bg-brand-light hover:text-brand rounded-md transition-colors">#감성카페</button>
+                    <button onclick="setSearchQuery('반려동물')" class="px-2.5 py-1 bg-gray-100 hover:bg-brand-light hover:text-brand rounded-md transition-colors">#반려동물</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Financial Dashboard Cards & Analytics Section -->
+    <section id="analytics" class="py-16 bg-gray-50/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+                <div>
+                    <span class="text-brand font-semibold text-sm tracking-wide uppercase">Real-time Analytics & AI Insights</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-dark mt-1 tracking-tight">금융 차트 스타일 실시간 성과 대시보드</h2>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-2 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-brand animate-ping"></span>
+                    <span class="text-xs font-semibold text-gray-700">라이브 AI 트래킹 활성화됨</span>
+                </div>
+            </div>
+
+            <!-- Financial Style Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between text-gray-500 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">총 노출 및 도달률</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-brand flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-dark">284,592 <span class="text-xs font-semibold text-brand">+24.8%</span></div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+                        <span>전일 대비 상승</span>
+                        <span class="font-bold text-dark">실시간 계산중</span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between text-gray-500 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">AI 태그 최적화 지수</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-brand flex items-center justify-center">
+                            <i data-lucide="tag" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-dark">94.2점 <span class="text-xs font-semibold text-brand">+5.4pt</span></div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+                        <span>#고양이 연동 지수</span>
+                        <span class="font-bold text-brand">최우수 등급</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between text-gray-500 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">평균 참여 전환율</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-brand flex items-center justify-center">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-dark">12.6% <span class="text-xs font-semibold text-brand">+3.2%</span></div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+                        <span>목표 대비 달성률</span>
+                        <span class="font-bold text-dark">112% 초과</span>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between text-gray-500 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">최적 업로드 적중률</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-brand flex items-center justify-center">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-dark">98.9% <span class="text-xs font-semibold text-brand">Stable</span></div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-400 border-t border-gray-50 pt-3">
+                        <span>다음 피크타임</span>
+                        <span class="font-bold text-brand">오늘 오후 8시</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section (Detailed Tag Chart & Upload Time Prediction Chart) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Tag Analysis Chart -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-dark">상세 태그 분석 및 반응률 트렌드</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">고양이 및 반려동물 카테고리 연관 태그 성과 비교</p>
+                        </div>
+                        <span class="text-xs bg-brand-light text-brand px-3 py-1 rounded-full font-semibold">Weekly</span>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas id="tagChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Upload Time Prediction Chart -->
+                <div id="simulator" class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-dark">24시간 최적 업로드 시각 예측 차트</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">실시간 사용자 활동량과 도달률을 분석한 피크타임 그래프</p>
+                        </div>
+                        <span class="text-xs bg-brand-light text-brand px-3 py-1 rounded-full font-semibold">AI 예측 모델</span>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Template Selection Grid -->
+    <section id="templates" class="py-16 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+                <div>
+                    <span class="text-brand font-semibold text-sm tracking-wide uppercase">Imweb Style Templates</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-dark mt-1 tracking-tight">엄선된 프리미엄 SaaS & 템플릿</h2>
+                </div>
+                <p class="text-sm text-gray-500 mt-2 md:mt-0">원클릭으로 사이트 개설부터 SNS 자동 연동까지 완료하세요.</p>
+            </div>
+
+            <!-- Templates Grid Container -->
+            <div id="templateGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Template items populated via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-16 bg-gray-50/50 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="text-brand font-semibold text-sm tracking-wide uppercase">Simple & Transparent Pricing</span>
+            <h2 class="text-3xl font-black text-dark mt-1 tracking-tight">부담 없이 시작하고 확실하게 성장하세요</h2>
+            <p class="text-gray-500 mt-2 max-w-xl mx-auto">초기 비용 없이 무료로 시작하고, 채널 규모에 맞춰 요금제를 선택하세요.</p>
+
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                <!-- Free Plan -->
+                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-gray-400 uppercase tracking-wider">STARTER</div>
+                        <div class="text-3xl font-black text-dark mt-2">무료 <span class="text-sm font-normal text-gray-500">/ 평생</span></div>
+                        <p class="text-xs text-gray-500 mt-2">개인 크리에이터 및 소규모 브랜드 체험용</p>
+                        <ul class="mt-6 space-y-3 text-sm text-gray-600">
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>기본 템플릿 3종 제공</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>기본 태그 검색 (월 100회)</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>일반 업로드 시간 추천</li>
+                        </ul>
+                    </div>
+                    <button onclick="openModal('startModal')" class="mt-8 w-full py-3 bg-gray-100 hover:bg-dark hover:text-white text-dark rounded-xl font-semibold text-sm transition-all">무료로 시작</button>
+                </div>
+                <!-- Pro Plan -->
+                <div class="bg-dark text-white p-8 rounded-3xl border border-dark shadow-xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 rounded-full blur-2xl"></div>
+                    <div>
+                        <div class="inline-block px-3 py-1 rounded-full bg-brand text-white text-xs font-bold uppercase tracking-wider mb-2">MOST POPULAR</div>
+                        <div class="text-3xl font-black mt-2">₩29,000 <span class="text-sm font-normal text-gray-400">/ 월</span></div>
+                        <p class="text-xs text-gray-400 mt-2">고양이 브랜드 및 쇼핑몰 운영자를 위한 필수 요금제</p>
+                        <ul class="mt-6 space-y-3 text-sm text-gray-300">
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>모든 프리미엄 템플릿 무제한</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>고양이 전용 상세 태그 분석 차트</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>24시간 최적 업로드 예측 AI</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>금융 스타일 대시보드 리포트</li>
+                        </ul>
+                    </div>
+                    <button onclick="openModal('startModal')" class="mt-8 w-full py-3 bg-brand hover:bg-brand-dark text-white rounded-xl font-semibold text-sm transition-all shadow-lg">프로 플랜 시작하기</button>
+                </div>
+                <!-- Enterprise Plan -->
+                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-gray-400 uppercase tracking-wider">ENTERPRISE</div>
+                        <div class="text-3xl font-black text-dark mt-2">₩99,000 <span class="text-sm font-normal text-gray-500">/ 월</span></div>
+                        <p class="text-xs text-gray-500 mt-2">대규모 브랜드 및 기업용 맞춤형 솔루션</p>
+                        <ul class="mt-6 space-y-3 text-sm text-gray-600">
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>전담 마케팅 컨설턴트 배정</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>커스텀 AI 학습 및 API 연동</li>
+                            <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-brand mr-2"></i>무제한 데이터 및 리포트 내보내기</li>
+                        </ul>
+                    </div>
+                    <button onclick="openModal('startModal')" class="mt-8 w-full py-3 bg-gray-100 hover:bg-dark hover:text-white text-dark rounded-xl font-semibold text-sm transition-all">문의하기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <div class="w-8 h-8 bg-dark rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    <span class="text-brand">S</span>
+                </div>
+                <span class="text-lg font-bold tracking-tight text-dark">SNS RL Optimizer</span>
+            </div>
+            <p class="text-xs text-gray-400 text-center md:text-left">
+                &copy; 2026 SNS RL Optimizer Inc. All rights reserved. Imweb Style Korean SaaS Solution.
+            </p>
+            <div class="flex space-x-6 mt-4 md:mt-0 text-xs text-gray-500">
+                <a href="#" class="hover:text-brand">이용약관</a>
+                <a href="#" class="hover:text-brand font-bold text-dark">개인정보처리방침</a>
+                <a href="#" class="hover:text-brand">고객센터</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Modal Window (Replacement for alert/confirm) -->
+    <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-100 transform transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-brand-light text-brand flex items-center justify-center mb-4">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-bold text-dark">알림</h3>
+            <p id="modalDesc" class="text-sm text-gray-500 mt-2">요청하신 작업이 성공적으로 처리되었습니다.</p>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-dark hover:bg-brand text-white rounded-xl text-sm font-semibold transition-colors">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login / Start Modal -->
+    <div id="actionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="actionModalTitle" class="text-xl font-bold text-dark">무료로 시작하기</h3>
+                <button onclick="closeActionModal()" class="text-gray-400 hover:text-dark">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">이메일 주소</label>
+                    <input type="email" required placeholder="name@example.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">비밀번호</label>
+                    <input type="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-brand hover:bg-brand-dark text-white rounded-xl font-semibold text-sm transition-colors shadow-sm">계속하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Lucide Icons initialization
+        lucide.createIcons();
+
+        // Template Dataset with Cat templates & categories
+        const templates = [
+            {
+                id: 1,
+                title: "캣러버즈 프리미엄 고양이 쇼핑몰",
+                category: "pet",
+                tags: ["고양이", "쇼핑몰", "반려동물", "사료용품"],
+                image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80",
+                desc: "고양이 집사들을 위한 맞춤형 이커머스 및 AI 추천 피드 자동 연동 템플릿."
+            },
+            {
+                id: 2,
+                title: "뮤즈 펫살롱 & 고양이 호텔",
+                category: "business",
+                tags: ["고양이", "비즈니스", "예약", "반려동물"],
+                image: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=600&q=80",
+                desc: "고양이 전문 미용 및 호텔 서비스를 위한 예약형 반응형 웹사이트."
+            },
+            {
+                id: 3,
+                title: "네코 다이어리 고양이 매거진 블로그",
+                category: "blog",
+                tags: ["고양이", "블로그", "미디어", "매거진"],
+                image: "https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=600&q=80",
+                desc: "반려묘 육아 일기와 유용한 정보 공유에 특화된 매거진 스타일 템플릿."
+            },
+            {
+                id: 4,
+                title: "어반 모던 라이프스타일 쇼핑몰",
+                category: "shopping",
+                tags: ["쇼핑몰", "패션", "리빙", "감성"],
+                image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80",
+                desc: "Imweb 감성의 미니멀하고 세련된 화이트 기반의 의류/리빙 쇼핑몰."
+            },
+            {
+                id: 5,
+                title: "그린 스튜디오 비즈니스 포트폴리오",
+                category: "business",
+                tags: ["비즈니스", "브랜딩", "포트폴리오"],
+                image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80",
+                desc: "기업 홍보와 브랜드 아이덴티티를 극대화하는 모던 웹사이트."
+            },
+            {
+                id: 6,
+                title: "위클리 테크 블로그 & 미디어",
+                category: "blog",
+                tags: ["블로그", "테크", "뉴스레터"],
+                image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80",
+                desc: "인사이트와 콘텐츠를 깔끔하게 전달하는 미디어 전문 템플릿."
+            }
+        ];
+
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // Render Templates
+        function renderTemplates() {
+            const grid = document.getElementById('templateGrid');
+            const filtered = templates.filter(t => {
+                const matchesCat = currentCategory === 'all' || t.category === currentCategory;
+                const matchesQuery = searchQuery === '' || 
+                    t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesCat && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-4">
+                            <i data-lucide="search-x" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark">검색 결과가 없습니다</h3>
+                        <p class="text-sm text-gray-500 mt-1">다른 키워드('#고양이' 등)나 카테고리를 선택해보세요.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = filtered.map(t => `
+                <div class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                    <div class="relative overflow-hidden aspect-[16/10] bg-gray-100">
+                        <img src="${t.image}" alt="${t.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/f3f4f6/111111?text=Template'">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
+                            ${t.category === 'pet' ? '고양이/반려동물' : t.category === 'shopping' ? '쇼핑몰' : t.category === 'business' ? '비즈니스' : '블로그'}
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex flex-wrap gap-1.5 mb-3">
+                            ${t.tags.map(tag => `<span class="text-xs bg-brand-light text-brand px-2.5 py-0.5 rounded-md font-semibold">#${tag}</span>`).join('')}
+                        </div>
+                        <h3 class="text-lg font-bold text-dark group-hover:text-brand transition-colors">${t.title}</h3>
+                        <p class="text-xs text-gray-500 mt-2 flex-grow leading-relaxed">${t.desc}</p>
+                        <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-gray-400">Imweb 최적화 템플릿</span>
+                            <button onclick="previewTemplate('${t.title}')" class="px-4 py-2 bg-dark hover:bg-brand text-white rounded-xl text-xs font-semibold transition-colors flex items-center space-x-1">
+                                <span>미리보기</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Category Filter
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('bg-dark', 'text-white');
+                b.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            btn.classList.remove('bg-gray-100', 'text-gray-600');
+            btn.classList.add('bg-dark', 'text-white');
+            renderTemplates();
+        }
+
+        // Search Handlers
+        function handleSearch(val) {
+            searchQuery = val.trim();
+            renderTemplates();
+        }
+
+        function setSearchQuery(tag) {
+            const cleanTag = tag.replace('#', '');
+            document.getElementById('templateSearchInput').value = cleanTag;
+            searchQuery = cleanTag;
+            // Also switch to cat tab if searching cat
+            if (cleanTag === '고양이') {
+                const petBtn = document.querySelector('button[onclick*="pet"]');
+                if (petBtn) filterCategory('pet', petBtn);
+            } else {
+                renderTemplates();
+            }
+        }
+
+        // Modal Controls
+        function openModal(type) {
+            if (type === 'startModal' || type === 'loginModal') {
+                document.getElementById('actionModalTitle').innerText = type === 'loginModal' ? '로그인' : '무료로 시작하기';
+                document.getElementById('actionModal').classList.remove('hidden');
+            }
+        }
+
+        function closeActionModal() {
+            document.getElementById('actionModal').classList.add('hidden');
+        }
+
+        function previewTemplate(title) {
+            document.getElementById('modalTitle').innerText = '템플릿 미리보기';
+            document.getElementById('modalDesc').innerText = `'${title}' 템플릿의 라이브 에디터와 SNS 자동 연동 모듈을 불러오는 중입니다.`;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            closeActionModal();
+            document.getElementById('modalTitle').innerText = '환영합니다!';
+            document.getElementById('modalDesc').innerText = '성공적으로 로그인되었습니다. 대시보드 설정을 불러옵니다.';
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        // Initialize Charts (Chart.js)
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTemplates();
+
+            // Tag Analysis Chart (#고양이 태그 분석)
+            const tagCtx = document.getElementById('tagChart').getContext('2d');
+            new Chart(tagCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['#고양이', '#반려동물', '#고양이사료', '#냥스타그램', '#집사소통', '#고양이간식'],
+                    datasets: [{
+                        label: '참여 반응 지수 (점)',
+                        data: [96, 88, 82, 94, 79, 85],
+                        backgroundColor: '#00C73C',
+                        borderRadius: 8,
+                        barThickness: 24,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            grid: { color: '#f3f4f6' }
+                        },
+                        x: { 
+                            grid: { display: false } 
+                        }
+                    }
+                }
+            });
+
+            // 24-Hour Upload Time Prediction Chart
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            new Chart(timeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00시', '03시', '06시', '09시', '12시', '15시', '18시', '21시'],
+                    datasets: [{
+                        label: '예상 도달률 (천명)',
+                        data: [12, 5, 8, 45, 78, 88, 95, 140],
+                        borderColor: '#00C73C',
+                        backgroundColor: 'rgba(0, 199, 60, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#111111',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' }
+                        },
+                        x: { 
+                            grid: { display: false } 
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
